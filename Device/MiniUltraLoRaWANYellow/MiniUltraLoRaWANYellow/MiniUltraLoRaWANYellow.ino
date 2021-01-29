@@ -21,7 +21,7 @@ const int lid4Pin = A3;
 volatile byte lidStatus = 0;
 volatile bool pendingTransmission = false;
 
-#define SLEEP_PERIOD 5000
+#define SLEEP_PERIOD 10000
 #define BAUD_RATE_LORA 19200
 #define BAUD_RATE_DEBUG 115200
 #define debugSerial Serial
@@ -58,8 +58,6 @@ void setup()
 
   // Pin Change Interrupt
   // https://gammon.com.au/interrupts 
-  // 4  Pin Change Interrupt Request 0 (pins D8 to D13) (PCINT0_vect)
-  // 6  Pin Change Interrupt Request 2 (pins D0 to D7)  (PCINT2_vect)
   // 5  Pin Change Interrupt Request 1 (pins A0 to A5)  (PCINT1_vect)
    PCMSK1 |= bit (PCINT8);  // want pin A0
    PCMSK1 |= bit (PCINT9);  // want pin A1
@@ -67,104 +65,59 @@ void setup()
    PCMSK1 |= bit (PCINT11);  // want pin A3
    PCIFR  |= bit (PCIF1);   // clear any outstanding interrupts
    PCICR  |= bit (PCIE1);   // enable pin change interrupts for A0 to A5
-
-  //PCMSK2 |= bit (PCINT21);  // want pin D5
-  //PCMSK2 |= bit (PCINT18);  // want pin D2
-  //PCIFR  |= bit (PCIF2);   // clear any outstanding interrupts
-  //PCICR  |= bit (PCIE2);   // enable pin change interrupts for D8 to D13
 }
 
 void loop()
 {
-    //debugSerial.print(F("."));
+  // Put radio to sleep, wake using interrupt
+  loraSerial.begin(BAUD_RATE_LORA);
+  ttn.wake();
+  ttn.sleep(SLEEP_PERIOD);
+  detachInterrupt(digitalPinToInterrupt(radioWakeUpPin));
+  attachInterrupt(digitalPinToInterrupt(radioWakeUpPin), radioWakeUp, LOW);
+  // Put IO pins (D8 & D9) used for software serial into low power 
+  loraSerial.end();
+  // Put MCU to sleep until interrupted
+  LowPower.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF);
+
+  // Transmit any outstanding lid states
+  if(pendingTransmission && lidStatus != 0)
+  {
+    PCICR &= ~(1 << PCIE1); // Disable pin change interrupts for A0 to A5
+    pendingTransmission = false;
+    // Make a copy of lid states
+    byte payload[1] = {lidStatus};
+    // Reset lid states
+    lidStatus = 0;
     
-    debugSerial.println(F(" MCU Sleep"));
-    debugSerial.flush();
-    LowPower.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF);
-    debugSerial.println(F(" MCU Wake"));
-    //debugSerial.print(lidStatus, DEC);
-    // debugSerial.print(F(" "));
-    debugSerial.println(lidStatus, HEX);
-    debugSerial.flush();
+    loraSerial.begin(BAUD_RATE_LORA);
+    ttn.wake();
+    ttn.sendBytes(payload, sizeof(payload));
+    ttn.saveState();
 
-    // Send & sleep
-    if(lidStatus != 0)
-    {
-      PCICR &= ~(1 << PCIE1); // Disable pin change interrupts for A0 to A5
-      pendingTransmission = false;
-      byte payload[1] = {lidStatus};
-      lidStatus = 0;
-      debugSerial.print(F("Payload: "));
-      debugSerial.println(payload[0]);
-
-      digitalWrite(LED_BUILTIN, HIGH);
-      //loraSerial.begin(BAUD_RATE_LORA);
-      debugSerial.println(F(" Transmitting"));
-      debugSerial.flush();
-      
-      ttn.sendBytes(payload, sizeof(payload));
-      debugSerial.println(F(" Transmitted"));
-      debugSerial.flush();
-      ttn.saveState();
-      //ttn.sleep(SLEEP_PERIOD);
-      digitalWrite(LED_BUILTIN, LOW);
-      PCICR |= bit (PCIE1); // Enable pin change interrupts for A0 to A5
-    }
-
-    // if(!pendingTransmission && lidStatus != 0)
-    // {
-    //   PCICR &= ~(1 << PCIE1); // Disable pin change interrupts for A0 to A5
-    //   loraSerial.begin(BAUD_RATE_LORA);
-    //   debugSerial.println(F(" Start radio timer"));
-    //   debugSerial.flush();
-      
-    //   // Use RN2483/RN2903 as MCU wake-up source after RN2483/RN2903 sleep period 
-    //   // expires 
-
-    //   ttn.sleep(SLEEP_PERIOD);
-    //   //detachInterrupt(digitalPinToInterrupt(radioWakeUpPin));
-    //   attachInterrupt(digitalPinToInterrupt(radioWakeUpPin), radioWakeUp, LOW);
-    //   // Put IO pins (D8 & D9) used for software serial into low power 
-    //   loraSerial.end();
-    //   //Put MCU into sleep mode and to be woken up by pin change interrupts or RN2483/RN2903
-    //   //debugSerial.println(F(" MCU Sleep"));
-    //   //debugSerial.flush();
-    //   //LowPower.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF);
-    //   //debugSerial.println(F(" MCU Wake"));
-    //   //loraSerial.begin(BAUD_RATE_LORA);
-    //   PCICR |= bit (PCIE1); // Enable pin change interrupts for A0 to A5
-    // }
+    PCIFR |= bit (PCIF1);   // clear any outstanding interrupts
+    PCICR |= bit (PCIE1); // Enable pin change interrupts for A0 to A5
+  }
 }
 
 void radioWakeUp()
 {
-  //noInterrupts();
   detachInterrupt(digitalPinToInterrupt(radioWakeUpPin));
   pendingTransmission = true;
-  //debugSerial.println(F(" radioWakeUp"));
-  //debugSerial.flush();
-  //interrupts();
 }
 
 ISR (PCINT1_vect)
  {
-    //noInterrupts();
-    if (!digitalRead(lid1Pin)) lidStatus |= (1 << 0);
-    if (!digitalRead(lid2Pin)) lidStatus |= (1 << 1);
-    if (!digitalRead(lid3Pin)) lidStatus |= (1 << 2);
-    if (!digitalRead(lid4Pin)) lidStatus |= (1 << 3);
-    debugSerial.println(F(" PCINT1_vect"));
-    debugSerial.println(lidStatus, HEX);
-    debugSerial.flush();
-    //interrupts();
- }
+    PCICR &= ~(1 << PCIE1); // Disable pin change interrupts for A0 to A5
+    // Don't transmit lid states until transmission interval has passed,
+    // accumulate states
+    pendingTransmission = false;
+    
+    if (digitalRead(lid1Pin) == HIGH) lidStatus |= (1 << 0);
+    if (digitalRead(lid2Pin) == HIGH) lidStatus |= (1 << 1);
+    if (digitalRead(lid3Pin) == HIGH) lidStatus |= (1 << 2);
+    if (digitalRead(lid4Pin) == HIGH) lidStatus |= (1 << 3);
 
-//  ISR (PCINT2_vect)
-//  {
-//     noInterrupts();
-//     if (!digitalRead(lid1Pin)) lidStatus |= (1 << 0);
-//     if (!digitalRead(lid2Pin)) lidStatus |= (1 << 1);
-//     if (!digitalRead(lid3Pin)) lidStatus |= (1 << 2);
-//     if (!digitalRead(lid4Pin)) lidStatus |= (1 << 3);
-//     interrupts();
-//  }
+    PCIFR |= bit (PCIF1);   // clear any outstanding interrupts
+    PCICR |= bit (PCIE1); // Enable pin change interrupts for A0 to A5
+ }
