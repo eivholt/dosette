@@ -113,10 +113,10 @@ ISR (PCINT1_vect)
     // accumulate states
     pendingTransmission = false;
     
-    if (digitalRead(lid1Pin) == HIGH) lidStatus |= (1 << 0);
-    if (digitalRead(lid2Pin) == HIGH) lidStatus |= (1 << 1);
-    if (digitalRead(lid3Pin) == HIGH) lidStatus |= (1 << 2);
-    if (digitalRead(lid4Pin) == HIGH) lidStatus |= (1 << 3);
+    if (digitalRead(lid1Pin) == LOW) lidStatus |= (1 << 0);
+    if (digitalRead(lid2Pin) == LOW) lidStatus |= (1 << 1);
+    if (digitalRead(lid3Pin) == LOW) lidStatus |= (1 << 2);
+    if (digitalRead(lid4Pin) == LOW) lidStatus |= (1 << 3);
 
     PCIFR |= bit (PCIF1);   // clear any outstanding interrupts
     PCICR |= bit (PCIE1); // Enable pin change interrupts for A0 to A5
