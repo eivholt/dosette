@@ -12,12 +12,12 @@ namespace DosetteReminder.TelemetryStorageClient
 {
     public class TtnTelemetryStorageClient : ITelemetryStorageClient
     {
-        private string m_authorizationKey = "NNSXS.5XOFCIXDM3BZWDB....."; // TTS API key
+        private string m_authorizationKey = "NNSXS.5XOFCI...."; // TTS API key
         private string m_applicationId = "dosette"; // TTS application_id
         private readonly IHttpClientFactory m_httpClientFactory;
 
-        public DateTime LastPollDateTime { get; set; }
-        public DateTime LastResponseCompletedDateTime { get; set; }
+        public DateTime LastPollDateTime { get; private set; }
+        public DateTime LastResponseCompletedDateTime { get; private set; }
 
         public TtnTelemetryStorageClient(IHttpClientFactory httpClientFactory)
         {
@@ -50,11 +50,21 @@ namespace DosetteReminder.TelemetryStorageClient
                     response.EnsureSuccessStatusCode();
                     await foreach (TelemetryStorageMessage telemetryStorageMessage in response.Content!.ReadFromNdjsonAsync<TelemetryStorageMessage>())
                 {
-                    telemetryData.Add(telemetryStorageMessage);
+                    AddUniqueMessages(telemetryData, telemetryStorageMessage);
                 }
             }
 
-            return telemetryData;
+            var orderedTelemetryData = telemetryData.OrderByDescending(x => DateTime.Parse(x.Result.ReceivedAt)).ToList();
+
+            return orderedTelemetryData;
+        }
+
+        private static void AddUniqueMessages(List<TelemetryStorageMessage> telemetryDataList, TelemetryStorageMessage telemetryStorageMessage)
+        {
+            if(!telemetryDataList.Exists(x => x.Result.UplinkMessage.FCnt == telemetryStorageMessage.Result.UplinkMessage.FCnt))
+            {
+                telemetryDataList.Add(telemetryStorageMessage);
+            }
         }
     }
 }

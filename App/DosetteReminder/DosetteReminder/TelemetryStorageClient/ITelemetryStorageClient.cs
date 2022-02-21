@@ -11,7 +11,7 @@ namespace DosetteReminder.TelemetryStorageClient
     {
         Task<List<TelemetryStorageMessage>> GetTelemetry();
 
-        DateTime LastPollDateTime { get; set; }
-        DateTime LastResponseCompletedDateTime { get; set; }
+        DateTime LastPollDateTime { get; }
+        DateTime LastResponseCompletedDateTime { get; }
     }
 }

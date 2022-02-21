@@ -4,46 +4,48 @@
              BackgroundColor="{DynamicResource SecondaryColor}">
 
     <ScrollView>
-        <Grid RowSpacing="25" RowDefinitions="Auto,Auto,Auto,Auto,*"
+        <Grid RowSpacing="25" RowDefinitions="Auto,Auto,Auto"
               Padding="{OnPlatform iOS='30,60,30,30', Default='30'}">
 
-            <Label 
-                Text="Hello, World!"
+            <Button 
+                Text="Get data"
+                FontAttributes="Bold"
                 Grid.Row="0"
+                SemanticProperties.Hint="Counts the number of times you click"
+                Command="{Binding LoadTelemetryMessagesCommand}"
+                HorizontalOptions="Center" />
+            
+            <Label 
+                Text="{Binding TelemetryMessages.Count}"
+                Grid.Row="1"
                 SemanticProperties.HeadingLevel="Level1"
                 FontSize="32"
                 HorizontalOptions="Center" />
 
             <Label 
-                Text="Welcome to .NET Multi-platform App UI"
-                Grid.Row="1"
+                Text="{Binding TelemetryMessages.First.Result.ReceivedAt}"
+                Grid.Row="2"
                 SemanticProperties.HeadingLevel="Level1"
                 SemanticProperties.Description="Welcome to dot net Multi platform App U I"
                 FontSize="18"
                 HorizontalOptions="Center" />
 
-            <Label 
-                Text="{Binding AccessLog}"
-                Grid.Row="2"
-                FontSize="18"
-                FontAttributes="Bold"
-                x:Name="CounterLabel"
-                HorizontalOptions="Center" />
-
-            <Button 
-                Text="Click me"
-                FontAttributes="Bold"
+            <CollectionView 
                 Grid.Row="3"
-                SemanticProperties.Hint="Counts the number of times you click"
-                Command="{Binding LoadAccessLogCommand}"
-                HorizontalOptions="Center" />
-
-            <Image Grid.Row="4"
-                Source="dotnet_bot.png"
-                SemanticProperties.Description="Cute dot net bot waving hi to you!"
-                WidthRequest="250"
-                HeightRequest="310"
-                HorizontalOptions="Center" />
+                ItemsSource="{Binding TelemetryMessages}">
+                <CollectionView.Header>
+                    <Label Text="History"/>
+                    <!--Text="{x:Static res:AppResource.Categories}"-->
+                </CollectionView.Header>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Label Grid.Row="0" Text="{Binding Result.ReceivedAt}"/>
+                            <!--<Button Grid.Row="1" Text="{Binding Result.ReceivedAt}"/>-->
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
 
         </Grid>
     </ScrollView>

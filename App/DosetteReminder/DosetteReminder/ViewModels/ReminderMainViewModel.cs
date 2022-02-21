@@ -1,6 +1,8 @@
-﻿using DosetteReminder.TelemetryStorageClient;
+﻿using DosetteReminder.Models;
+using DosetteReminder.TelemetryStorageClient;
 using MvvmHelpers;
 using MvvmHelpers.Commands;
+using System.Collections.ObjectModel;
 using System.Windows.Input;
 
 namespace DosetteReminder.ViewModels
@@ -8,24 +10,24 @@ namespace DosetteReminder.ViewModels
     public class ReminderMainViewModel : BaseViewModel
     {
         private readonly ITelemetryStorageClient m_telemetryStorageClient;
-        private string m_accessLog = "Access log";
+        public ObservableCollection<TelemetryStorageMessage> TelemetryMessages { get; set; }
 
-        public ICommand LoadAccessLogCommand => new AsyncCommand(ExecuteLoadAccessLogCommand);
+        public ICommand LoadTelemetryMessagesCommand => new AsyncCommand(ExecuteLoadTelemetryMessagesCommand);
 
         public ReminderMainViewModel(ITelemetryStorageClient telemetryStorageClient)
         {
             m_telemetryStorageClient = telemetryStorageClient;
-        }
-        public string AccessLog
-        {
-            get => m_accessLog; 
-            set => SetProperty(ref m_accessLog, value); 
+            TelemetryMessages = new ObservableCollection<TelemetryStorageMessage>();
         }
 
-        private async Task ExecuteLoadAccessLogCommand()
+        private async Task ExecuteLoadTelemetryMessagesCommand()
         {
             var telemetry = await m_telemetryStorageClient.GetTelemetry();
-            AccessLog = telemetry.Count.ToString();
+
+            foreach(var message in telemetry)
+            {
+                TelemetryMessages.Add(message);
+            }
         }
     }
 }
