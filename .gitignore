@@ -1,2 +1,7 @@
 
 *.CR2
+/App/DosetteReminder/.vs
+/App/DosetteReminder/DosetteReminder/.vs
+/App/DosetteReminder/DosetteReminder/bin/Debug
+*.TMP
+/App/DosetteReminder/DosetteReminder/obj
