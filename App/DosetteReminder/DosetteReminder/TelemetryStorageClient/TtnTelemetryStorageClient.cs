@@ -1,29 +1,22 @@
 ﻿using DosetteReminder.Extensions;
 using DosetteReminder.Models;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 
 namespace DosetteReminder.TelemetryStorageClient
 {
-    public partial class TtnTelemetryStorageClient : ITelemetryStorageClient
+    public partial class TtnTelemetryStorageClient : TelemetryStorageClient
     {
-        private string m_applicationId = "dosette"; // TTS application_id
         private readonly IHttpClientFactory m_httpClientFactory;
 
-        public DateTime LastPollDateTime { get; private set; }
-        public DateTime LastResponseCompletedDateTime { get; private set; }
+        public override DateTime LastPollDateTime { get; internal set; }
+        public override DateTime LastResponseCompletedDateTime { get; internal set; }
 
         public TtnTelemetryStorageClient(IHttpClientFactory httpClientFactory)
         {
             m_httpClientFactory = httpClientFactory;
         }
 
-        public async Task<List<TelemetryStorageMessage>> GetTelemetry()
+        public override async Task<List<TelemetryStorageMessage>> GetTelemetry()
         {
             LastPollDateTime = DateTime.Now;
             var telemetryMessages = await GetTelemetryMessagesHttp();
@@ -48,26 +41,18 @@ namespace DosetteReminder.TelemetryStorageClient
             {
                 response.EnsureSuccessStatusCode();
 
-                using (var stream = await response.Content.ReadAsStreamAsync()) 
+                using (var stream = await response.Content.ReadAsStreamAsync())
                 {
                     await foreach (TelemetryStorageMessage telemetryStorageMessage in stream!.ReadFromNdjsonAsync<TelemetryStorageMessage>())
                     {
                         AddUniqueMessages(telemetryData, telemetryStorageMessage);
-                    } 
+                    }
                 }
             }
 
-            var orderedTelemetryData = telemetryData.OrderByDescending(x => DateTime.Parse(x.Result.ReceivedAt)).ToList();
+            var orderedTelemetryData = OrderTelemetryMessagesByReceivedAt(telemetryData);
 
             return orderedTelemetryData;
-        }
-
-        private static void AddUniqueMessages(List<TelemetryStorageMessage> telemetryDataList, TelemetryStorageMessage telemetryStorageMessage)
-        {
-            if(!telemetryDataList.Exists(x => x.Result.UplinkMessage.FCnt == telemetryStorageMessage.Result.UplinkMessage.FCnt))
-            {
-                telemetryDataList.Add(telemetryStorageMessage);
-            }
         }
     }
 }

@@ -20,9 +20,16 @@ namespace DosetteReminder.ViewModels
 
         public bool Lid1Opened { get => GetLidOpened(1, m_message.Result.UplinkMessage.FrmPayload); }
 
+        public bool Lid2Opened { get => GetLidOpened(2, m_message.Result.UplinkMessage.FrmPayload); }
+
+        public bool Lid3Opened { get => GetLidOpened(3, m_message.Result.UplinkMessage.FrmPayload); }
+
+        public bool Lid4Opened { get => GetLidOpened(4, m_message.Result.UplinkMessage.FrmPayload); }
+
         private bool GetLidOpened(int lidNumber, string frmPayload)
         {
-            return Convert.FromBase64String(frmPayload)[0] == lidNumber;
+            var lidsByte = Convert.FromBase64String(frmPayload)[0];
+            return (lidsByte & (1 << lidNumber-1)) != 0;
         }
     }
 }

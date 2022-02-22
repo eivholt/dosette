@@ -12,6 +12,8 @@ namespace DosetteReminder.ViewModels
         private readonly ITelemetryStorageClient m_telemetryStorageClient;
         public ObservableCollection<TelemetryStorageMessageViewModel> TelemetryMessages { get; set; }
 
+        public TelemetryStorageMessageViewModel LastTelemetryMessage { get => TelemetryMessages.First(); }
+
         public ICommand LoadTelemetryMessagesCommand => new AsyncCommand(ExecuteLoadTelemetryMessagesCommand);
 
         public ReminderMainViewModel(ITelemetryStorageClient telemetryStorageClient)
@@ -28,6 +30,8 @@ namespace DosetteReminder.ViewModels
             {
                 TelemetryMessages.Add(new TelemetryStorageMessageViewModel(message));
             }
+
+            OnPropertyChanged(nameof(LastTelemetryMessage));
         }
     }
 }

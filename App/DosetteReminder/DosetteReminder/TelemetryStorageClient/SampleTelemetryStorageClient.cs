@@ -4,12 +4,12 @@ using System.Text.Json;
 
 namespace DosetteReminder.TelemetryStorageClient
 {
-    public class SampleTelemetryStorageClient : ITelemetryStorageClient
+    public class SampleTelemetryStorageClient : TelemetryStorageClient
     {
-        public DateTime LastPollDateTime { get; set; }
-        public DateTime LastResponseCompletedDateTime { get; set; }
+        public override DateTime LastPollDateTime { get; internal set; }
+        public override DateTime LastResponseCompletedDateTime { get; internal set; }
 
-        public async Task<List<TelemetryStorageMessage>> GetTelemetry()
+        public override async Task<List<TelemetryStorageMessage>> GetTelemetry()
         {
             LastPollDateTime = DateTime.Now;
             var telemetryMessages = await LoadMauiAsset("SampleData.ndjson");
@@ -25,11 +25,13 @@ namespace DosetteReminder.TelemetryStorageClient
             {
                 await foreach (TelemetryStorageMessage telemetryStorageMessage in stream!.ReadFromNdjsonAsync<TelemetryStorageMessage>())
                 {
-                    telemetryData.Add(telemetryStorageMessage);
+                    AddUniqueMessages(telemetryData, telemetryStorageMessage);
                 }
             }
 
-            return telemetryData;
+            var orderedTelemetryData = OrderTelemetryMessagesByReceivedAt(telemetryData);
+
+            return orderedTelemetryData;
         }
     }
 }

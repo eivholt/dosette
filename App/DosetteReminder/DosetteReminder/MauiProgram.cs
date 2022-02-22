@@ -1,7 +1,5 @@
 ﻿using DosetteReminder.TelemetryStorageClient;
 using DosetteReminder.ViewModels;
-using Microsoft.Extensions.DependencyInjection;
-using System.Net.Http;
 
 namespace DosetteReminder;
 
