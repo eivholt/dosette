@@ -10,9 +10,8 @@ using System.Web;
 
 namespace DosetteReminder.TelemetryStorageClient
 {
-    public class TtnTelemetryStorageClient : ITelemetryStorageClient
+    public partial class TtnTelemetryStorageClient : ITelemetryStorageClient
     {
-        private string m_authorizationKey = "NNSXS.5XOFCI...."; // TTS API key
         private string m_applicationId = "dosette"; // TTS application_id
         private readonly IHttpClientFactory m_httpClientFactory;
 
@@ -47,10 +46,14 @@ namespace DosetteReminder.TelemetryStorageClient
 
             using (HttpResponseMessage response = await httpClient.GetAsync(uriBuilder.Uri, HttpCompletionOption.ResponseHeadersRead))
             {
-                    response.EnsureSuccessStatusCode();
-                    await foreach (TelemetryStorageMessage telemetryStorageMessage in response.Content!.ReadFromNdjsonAsync<TelemetryStorageMessage>())
+                response.EnsureSuccessStatusCode();
+
+                using (var stream = await response.Content.ReadAsStreamAsync()) 
                 {
-                    AddUniqueMessages(telemetryData, telemetryStorageMessage);
+                    await foreach (TelemetryStorageMessage telemetryStorageMessage in stream!.ReadFromNdjsonAsync<TelemetryStorageMessage>())
+                    {
+                        AddUniqueMessages(telemetryData, telemetryStorageMessage);
+                    } 
                 }
             }
 
