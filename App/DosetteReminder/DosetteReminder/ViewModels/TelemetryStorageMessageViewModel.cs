@@ -18,14 +18,15 @@ namespace DosetteReminder.ViewModels
         }
         public DateTime ReceivedAt { get => DateTime.Parse(m_message.Result.ReceivedAt); }
 
-        public bool Lid1Opened { get => GetLidOpened(1, m_message.Result.UplinkMessage.FrmPayload); }
+        public bool Lid1Opened { get => m_message.Result.UplinkMessage.DecodedPayload.Lids.Lid1; }
 
-        public bool Lid2Opened { get => GetLidOpened(2, m_message.Result.UplinkMessage.FrmPayload); }
+        public bool Lid2Opened { get => m_message.Result.UplinkMessage.DecodedPayload.Lids.Lid2; }
 
-        public bool Lid3Opened { get => GetLidOpened(3, m_message.Result.UplinkMessage.FrmPayload); }
+        public bool Lid3Opened { get => m_message.Result.UplinkMessage.DecodedPayload.Lids.Lid3; }
 
-        public bool Lid4Opened { get => GetLidOpened(4, m_message.Result.UplinkMessage.FrmPayload); }
+        public bool Lid4Opened { get => m_message.Result.UplinkMessage.DecodedPayload.Lids.Lid4; }
 
+        [Obsolete("Use DecodedPayload instead.")]
         private bool GetLidOpened(int lidNumber, string frmPayload)
         {
             var lidsByte = Convert.FromBase64String(frmPayload)[0];

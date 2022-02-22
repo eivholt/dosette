@@ -14,9 +14,9 @@ namespace DosetteReminder.TelemetryStorageClient
 
         public abstract Task<List<TelemetryStorageMessage>> GetTelemetry();
 
-        internal static List<TelemetryStorageMessage> OrderTelemetryMessagesByReceivedAt(List<TelemetryStorageMessage> telemetryData)
+        internal static List<TelemetryStorageMessage> OrderTelemetryMessagesByReceivedAtDescending(List<TelemetryStorageMessage> telemetryData)
         {
-            return telemetryData.OrderBy(x => DateTime.Parse(x.Result.ReceivedAt)).ToList();
+            return telemetryData.OrderByDescending(x => DateTime.Parse(x.Result.ReceivedAt)).ToList();
         }
 
         internal static void AddUniqueMessages(List<TelemetryStorageMessage> telemetryDataList, TelemetryStorageMessage telemetryStorageMessage)

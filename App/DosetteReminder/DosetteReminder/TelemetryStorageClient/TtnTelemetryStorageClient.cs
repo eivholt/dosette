@@ -50,7 +50,7 @@ namespace DosetteReminder.TelemetryStorageClient
                 }
             }
 
-            var orderedTelemetryData = OrderTelemetryMessagesByReceivedAt(telemetryData);
+            var orderedTelemetryData = OrderTelemetryMessagesByReceivedAtDescending(telemetryData);
 
             return orderedTelemetryData;
         }

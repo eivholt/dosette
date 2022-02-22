@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
-namespace DosetteReminder.Models
-{
-    // TelemetryStorageMessage myDeserializedClass = JsonSerializer.Deserialize<TelemetryStorageMessage>(myJsonResponse);
+namespace DosetteReminder.Models { 
     public class ApplicationIds
     {
         [JsonPropertyName("application_id")]
@@ -29,16 +22,25 @@ namespace DosetteReminder.Models
         public string DevAddr { get; set; }
     }
 
+    public class Lids
+    {
+        [JsonPropertyName("lid1")]
+        public bool Lid1 { get; set; }
+
+        [JsonPropertyName("lid2")]
+        public bool Lid2 { get; set; }
+
+        [JsonPropertyName("lid3")]
+        public bool Lid3 { get; set; }
+
+        [JsonPropertyName("lid4")]
+        public bool Lid4 { get; set; }
+    }
+
     public class DecodedPayload
     {
-        [JsonPropertyName("distance")]
-        public int Distance { get; set; }
-
-        [JsonPropertyName("temperaturec")]
-        public int Temperaturec { get; set; }
-
-        [JsonPropertyName("voltage")]
-        public int Voltage { get; set; }
+        [JsonPropertyName("lids")]
+        public Lids Lids { get; set; }
     }
 
     public class GatewayIds
@@ -104,7 +106,7 @@ namespace DosetteReminder.Models
         public DateTime Time { get; set; }
 
         [JsonPropertyName("timestamp")]
-        public object Timestamp { get; set; }
+        public long Timestamp { get; set; }
 
         [JsonPropertyName("rssi")]
         public int Rssi { get; set; }
@@ -241,6 +243,5 @@ namespace DosetteReminder.Models
         [JsonPropertyName("result")]
         public Result Result { get; set; }
     }
-
 
 }

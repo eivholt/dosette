@@ -1,6 +1,5 @@
 ﻿using DosetteReminder.Extensions;
 using DosetteReminder.Models;
-using System.Text.Json;
 
 namespace DosetteReminder.TelemetryStorageClient
 {
@@ -29,7 +28,7 @@ namespace DosetteReminder.TelemetryStorageClient
                 }
             }
 
-            var orderedTelemetryData = OrderTelemetryMessagesByReceivedAt(telemetryData);
+            var orderedTelemetryData = OrderTelemetryMessagesByReceivedAtDescending(telemetryData);
 
             return orderedTelemetryData;
         }
