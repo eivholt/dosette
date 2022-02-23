@@ -15,7 +15,7 @@ public static class MauiProgram
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
 			});
 		builder.Services.AddHttpClient();
-		builder.Services.AddSingleton<ITelemetryStorageClient, SampleTelemetryStorageClient>();
+		builder.Services.AddSingleton<ITelemetryStorageClient, TtnTelemetryStorageClient>();
 		builder.Services.AddSingleton<MainPage>();
 		builder.Services.AddSingleton<ReminderMainViewModel>();
 

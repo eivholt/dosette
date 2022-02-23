@@ -5,8 +5,10 @@
     <Application.Resources>
         <ResourceDictionary>
 
-            <Color x:Key="PrimaryColor">#512bdf</Color>
-            <Color x:Key="SecondaryColor">White</Color>
+            <Color x:Key="PrimaryColor">#F5B041</Color>
+            <Color x:Key="SecondaryColor">Gray</Color>
+            <Color x:Key="BackgroundColor">White</Color>
+            <Color x:Key="WarningColor">#FF5733</Color>
 
             <Style TargetType="Label">
                 <Setter Property="TextColor" Value="{DynamicResource PrimaryColor}" />

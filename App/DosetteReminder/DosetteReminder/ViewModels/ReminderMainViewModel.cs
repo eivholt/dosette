@@ -14,6 +14,8 @@ namespace DosetteReminder.ViewModels
 
         public TelemetryStorageMessageViewModel LastTelemetryMessage { get => TelemetryMessages.FirstOrDefault(); }
 
+        public string LastResponseCompletedTimeText { get => m_telemetryStorageClient.LastResponseCompletedDateTime.ToShortTimeString(); }
+
         public ICommand LoadTelemetryMessagesCommand => new AsyncCommand(ExecuteLoadTelemetryMessagesCommand);
 
         public ReminderMainViewModel(ITelemetryStorageClient telemetryStorageClient)
@@ -24,6 +26,7 @@ namespace DosetteReminder.ViewModels
 
         private async Task ExecuteLoadTelemetryMessagesCommand()
         {
+            TelemetryMessages.Clear();
             var telemetry = await m_telemetryStorageClient.GetTelemetry();
 
             foreach(var message in telemetry)
@@ -33,6 +36,7 @@ namespace DosetteReminder.ViewModels
 
             OnPropertyChanged(nameof(LastTelemetryMessage));
             OnPropertyChanged(nameof(TelemetryMessages));
+            OnPropertyChanged(nameof(LastResponseCompletedTimeText));
         }
     }
 }

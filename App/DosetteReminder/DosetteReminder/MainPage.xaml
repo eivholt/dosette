@@ -1,79 +1,81 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="DosetteReminder.MainPage"
-             BackgroundColor="{DynamicResource SecondaryColor}">
+             BackgroundColor="{DynamicResource BackgroundColor}">
     <ContentPage.Resources>
         <ResourceDictionary>
-            <Style TargetType="Label" x:Key="LidLabelStyle">
-                <!--<Setter Property="Margin" Value="8"/>-->
-                <!--<Setter Property="BackgroundColor" Value="{DynamicResource SecondaryColor}"/>
-                <Setter Property="TextColor" Value="{DynamicResource PrimaryColor}"/>-->
-                <Style.Triggers>
-                    <DataTrigger TargetType="Label" Binding="{Binding}" Value="True">
-                        <Setter Property="BackgroundColor" Value="{DynamicResource PrimaryColor}"/>
-                        <Setter Property="TextColor" Value="{DynamicResource SecondaryColor}"/>
-                    </DataTrigger>
-                </Style.Triggers>
-            </Style>
+            <ResourceDictionary>
+                <Style TargetType="Label" x:Key="LidLabelStyle">
+                    <Setter Property="Margin" Value="8"/>
+                    <Setter Property="Padding" Value="18,14"/>
+                    <Setter Property="FontSize" Value="Title"/>
+                    <Setter Property="FontAttributes" Value="Bold"/>
+                    <Setter Property="BackgroundColor" Value="{DynamicResource SecondaryColor}"/>
+                    <Setter Property="TextColor" Value="{DynamicResource PrimaryColor}"/>
+                    <Setter Property="HorizontalOptions" Value="Center"/>
+
+                    <Style.Triggers>
+                        <DataTrigger TargetType="Label" Binding="{Binding}" Value="True">
+                            <Setter Property="BackgroundColor" Value="{DynamicResource PrimaryColor}"/>
+                            <Setter Property="TextColor" Value="{DynamicResource SecondaryColor}"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ResourceDictionary>
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <ScrollView>
-        <StackLayout 
-              Padding="{OnPlatform iOS='30,60,30,30', Default='30'}">
-            <Button 
-                Text="Get data"
-                FontAttributes="Bold"
-                SemanticProperties.Hint="Counts the number of times you click"
-                Command="{Binding LoadTelemetryMessagesCommand}"
-                HorizontalOptions="Center" />
-            
-            <Label 
-                Text="{Binding TelemetryMessages.Count}"
-                SemanticProperties.HeadingLevel="Level1"
-                FontSize="32"
-                HorizontalOptions="Center" />
+    <StackLayout
+              Padding="{OnPlatform iOS='30,60,30,30', Default='30'}" HorizontalOptions="Start">
+        <StackLayout.GestureRecognizers>
+            <SwipeGestureRecognizer Direction="Down" Command="{Binding LoadTelemetryMessagesCommand}"/>
+            <TapGestureRecognizer Command="{Binding LoadTelemetryMessagesCommand}"/>
+        </StackLayout.GestureRecognizers>
 
-            <Label 
-                Text="{Binding LastTelemetryMessage.ReceivedAt}"
-                SemanticProperties.HeadingLevel="Level1"
-                SemanticProperties.Description="Welcome to dot net Multi platform App U I"
-                FontSize="18"
-                HorizontalOptions="Center" />
-
-            <CollectionView x:Name="MessageHistory"
+        <CollectionView x:Name="MessageHistory" Margin="10"
                 ItemsSource="{Binding TelemetryMessages}">
-                <CollectionView.Header>
-                    <Label Text="History"/>
-                    <!--Text="{x:Static res:AppResource.Categories}"-->
-                </CollectionView.Header>
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <VerticalStackLayout>
-                            <Label x:Name="ReceivedAtLabel" Text="{Binding ReceivedAt}"/>
-                            <HorizontalStackLayout x:Name="LidsStack">
-                                <Label x:Name="Lid1"
-                                    BindingContext="{Binding Lid1Opened}"
-                                    Text="1" 
-                                    Style="{DynamicResource LidLabelStyle}"/>
-                                <Label x:Name="Lid2"
-                                    BindingContext="{Binding Lid2Opened}"
-                                    Text="2"
-                                    Style="{DynamicResource LidLabelStyle}"/>
-                                <Label x:Name="Lid3"
-                                    BindingContext="{Binding Lid3Opened}"
-                                    Text="3"
-                                    Style="{DynamicResource LidLabelStyle}"/>
-                                <Label x:Name="Lid4"
-                                    BindingContext="{Binding Lid4Opened}"
-                                    Text="4"
-                                    Style="{DynamicResource LidLabelStyle}"/>
-                            </HorizontalStackLayout>
-                        </VerticalStackLayout>
+            <CollectionView.GestureRecognizers>
+                <SwipeGestureRecognizer Direction="Down" Command="{Binding LoadTelemetryMessagesCommand}"/>
+                <TapGestureRecognizer Command="{Binding LoadTelemetryMessagesCommand}"/>
+            </CollectionView.GestureRecognizers>
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <StackLayout Spacing="20">
+                        <Label 
+                            x:Name="ReceivedAtLabel" 
+                            Text="{Binding ReceivedAt}"
+                            TextColor="{DynamicResource SecondaryColor}"
+                            FontSize="Title" />
+                        <Grid x:Name="LidsStack" ColumnDefinitions="Auto,Auto,Auto,Auto">
+                            <Label x:Name="Lid1" Style="{StaticResource LidLabelStyle}"
+                                BindingContext="{Binding Lid1Opened}"
+                                Text="1"
+                                Grid.Column="0"/>
+                            <Label x:Name="Lid2" Style="{StaticResource LidLabelStyle}"
+                                BindingContext="{Binding Lid2Opened}"
+                                Text="2"
+                                Grid.Column="1"/>
+                            <Label x:Name="Lid3" Style="{StaticResource LidLabelStyle}"
+                                BindingContext="{Binding Lid3Opened}"
+                                Text="3"
+                                Grid.Column="2"/>
+                            <Label x:Name="Lid4" Style="{StaticResource LidLabelStyle}"
+                                BindingContext="{Binding Lid4Opened}"
+                                Text="4"
+                                Grid.Column="3"/>
+                        </Grid>
+                    </StackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
 
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </StackLayout>
-    </ScrollView>
+        <HorizontalStackLayout x:Name="LastResponse">
+            <Label 
+                FontSize="Caption" Text="Updated" Margin="0,0,4,0 ">
+            </Label>
+            <Label
+                FontSize="Caption" Text="{Binding LastResponseCompletedTimeText}">
+            </Label>
+        </HorizontalStackLayout>
+    </StackLayout>
 </ContentPage>
